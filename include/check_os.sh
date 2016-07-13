@@ -25,6 +25,10 @@ elif [ -n "`grep Ubuntu /etc/issue`" -o "`lsb_release -is 2>/dev/null`" == 'Ubun
     OS=Ubuntu
     [ ! -e "`which lsb_release`" ] && { apt-get -y update; apt-get -y install lsb-release; clear; }
     Ubuntu_version=`lsb_release -sr | awk -F. '{print $1}'`
+elif [ -n "`grep Mint /etc/issue`" -o "`lsb_release -is 2>/dev/null`" == 'LinuxMint' ];then
+    OS=Ubuntu
+    [ ! -e "`which lsb_release`" ] && { apt-get -y update; apt-get -y install lsb-release; clear; }
+    Ubuntu_version=16
 else
     echo "${CFAILURE}Does not support this OS, Please contact the author! ${CEND}"
     kill -9 $$
