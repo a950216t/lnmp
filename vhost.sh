@@ -435,6 +435,7 @@ Create_nginx_tomcat_conf() {
 cat > $web_install_dir/conf/vhost/$domain.conf << EOF
 server {
 $Nginx_conf
+#listen [::]:80;
 server_name $domain$moredomainame;
 $N_log
 index index.html index.htm index.jsp;
@@ -520,6 +521,7 @@ Create_nginx_php-fpm_hhvm_conf() {
 cat > $web_install_dir/conf/vhost/$domain.conf << EOF
 server {
 $Nginx_conf
+#listen [::]:80;
 server_name $domain$moredomainame;
 $N_log
 index index.html index.htm index.php;
@@ -653,6 +655,7 @@ Create_nginx_apache_mod-php_conf() {
 cat > $web_install_dir/conf/vhost/$domain.conf << EOF
 server {
 $Nginx_conf
+#listen [::]:80;
 server_name $domain$moredomainame;
 $N_log
 index index.html index.htm index.php;

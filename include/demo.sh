@@ -11,12 +11,12 @@
 DEMO() {
 cd $oneinstack_dir/src
 
-[ "$IPADDR_STATE"x == "CN"x ] && /bin/cp ../config/index_cn.html $wwwroot_dir/default/index.html || /bin/cp ../config/index.html $wwwroot_dir/default
+[ "$IPADDR_STATE"x == "TW"x ] && /bin/cp ../config/index_tw.html $wwwroot_dir/default/index.html || /bin/cp ../config/index.html $wwwroot_dir/default
 
 if [ -e "$php_install_dir/bin/php" ];then
     if [ "$IPADDR_STATE"x == "CN"x ];then
-        src_url=http://mirrors.linuxeye.com/oneinstack/src/tz.zip && Download_src
-        unzip -q tz.zip -d $wwwroot_dir/default
+        src_url=http://blog.myxnova.com/phpinfo/tz_tw.zip && Download_src
+        unzip -q tz_tw.zip -d $wwwroot_dir/default
     else
         src_url=http://mirrors.linuxeye.com/oneinstack/src/tz_e.zip && Download_src
         unzip -q tz_e.zip -d $wwwroot_dir/default;/bin/mv $wwwroot_dir/default/{tz_e.php,proberv.php}
