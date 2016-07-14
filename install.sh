@@ -34,7 +34,7 @@ sed -i "s@^oneinstack_dir.*@oneinstack_dir=`pwd`@" ./options.conf
 # get the IP information
 IPADDR=`./include/get_ipaddr.py`
 PUBLIC_IPADDR=`./include/get_public_ipaddr.py`
-[ "`./include/get_ipaddr_state.py $PUBLIC_IPADDR`" == '\u4e2d\u56fd' ] && IPADDR_STATE=CN
+[ "`./include/get_ipaddr_state.py $PUBLIC_IPADDR`" == '\u53f0\u6e7e' ] && IPADDR_STATE=TW
 
 mkdir -p $wwwroot_dir/default $wwwlogs_dir
 [ -d /data ] && chmod 755 /data

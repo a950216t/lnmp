@@ -13,10 +13,10 @@ cd $oneinstack_dir/src
 
 FILE_NAME=mariadb-${mariadb_10_1_version}-${GLIBC_FLAG}-${SYS_BIT_b}.tar.gz
 
-if [ "$IPADDR_STATE"x == "CN"x ];then
-    DOWN_ADDR_MARIADB=http://mirrors.aliyun.com/mariadb/mariadb-${mariadb_10_1_version}/bintar-${GLIBC_FLAG}-$SYS_BIT_a
+if [ "$IPADDR_STATE"x == "TW"x ] || [ "$IPADDR_STATE"x == "US"x ];then
+    DOWN_ADDR_MARIADB=http://archive.mariadb.org/mariadb-${mariadb_10_1_version}/bintar-${GLIBC_FLAG}-$SYS_BIT_a
     MARAIDB_TAR_MD5=`curl -Lk $DOWN_ADDR_MARIADB/md5sums.txt | grep $FILE_NAME | awk '{print $1}'`
-    [ -z "$MARAIDB_TAR_MD5" ] && { DOWN_ADDR_MARIADB=https://mirrors.ustc.edu.cn/mariadb/mariadb-${mariadb_10_1_version}/bintar-${GLIBC_FLAG}-$SYS_BIT_a; MARAIDB_TAR_MD5=`curl -Lk $DOWN_ADDR_MARIADB/md5sums.txt | grep $FILE_NAME | awk '{print $1}'`; }
+    [ -z "$MARAIDB_TAR_MD5" ] && { DOWN_ADDR_MARIADB=https://sfo1.mirrors.digitalocean.com/mariadb/mariadb-${mariadb_10_1_version}/bintar-${GLIBC_FLAG}-$SYS_BIT_a; MARAIDB_TAR_MD5=`curl -Lk $DOWN_ADDR_MARIADB/md5sums.txt | grep $FILE_NAME | awk '{print $1}'`; }
 else
     DOWN_ADDR_MARIADB=https://downloads.mariadb.org/interstitial/mariadb-${mariadb_10_1_version}/bintar-${GLIBC_FLAG}-$SYS_BIT_a
     MARAIDB_TAR_MD5=`curl -Lk http://archive.mariadb.org/mariadb-${mariadb_10_1_version}/bintar-${GLIBC_FLAG}-$SYS_BIT_a/md5sums.txt |  grep $FILE_NAME | awk '{print $1}'`
