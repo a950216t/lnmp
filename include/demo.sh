@@ -16,7 +16,7 @@ cd $oneinstack_dir/src
 if [ -e "$php_install_dir/bin/php" ];then
     if [ "$IPADDR_STATE"x == "TW"x ];then
         src_url=http://blog.myxnova.com/phpinfo/tz_tw.zip && Download_src
-        unzip -q tz_tw.zip -d $wwwroot_dir/default
+        unzip -q tz_tw.zip -d $wwwroot_dir/default;/bin/mv $wwwroot_dir/default/{tz_e.php,proberv.php}
     else
         src_url=http://mirrors.linuxeye.com/oneinstack/src/tz_e.zip && Download_src
         unzip -q tz_e.zip -d $wwwroot_dir/default;/bin/mv $wwwroot_dir/default/{tz_e.php,proberv.php}
