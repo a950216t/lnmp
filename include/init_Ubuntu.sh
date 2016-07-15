@@ -114,8 +114,8 @@ echo 'en_US.UTF-8 UTF-8' > /var/lib/locales/supported.d/local
 sed -i 's@^@#@g' /etc/init/control-alt-delete.conf
 
 # Update time
-ntpdate pool.ntp.org
-[ ! -e "/var/spool/cron/crontabs/root" -o -z "`grep ntpdate /var/spool/cron/crontabs/root 2>/dev/null`" ] && { echo "*/20 * * * * `which ntpdate` pool.ntp.org > /dev/null 2>&1" >> /var/spool/cron/crontabs/root;chmod 600 /var/spool/cron/crontabs/root; }
+ntpdate time.stdtime.gov.tw
+[ ! -e "/var/spool/cron/crontabs/root" -o -z "`grep ntpdate /var/spool/cron/crontabs/root 2>/dev/null`" ] && { echo "*/20 * * * * `which ntpdate` time.stdtime.gov.tw > /dev/null 2>&1" >> /var/spool/cron/crontabs/root;chmod 600 /var/spool/cron/crontabs/root; }
 service cron restart
 
 # iptables

@@ -137,8 +137,8 @@ fi
 init q
 
 # Update time
-ntpdate pool.ntp.org
-[ ! -e "/var/spool/cron/root" -o -z "`grep 'ntpdate' /var/spool/cron/root`" ] && { echo "*/20 * * * * `which ntpdate` pool.ntp.org > /dev/null 2>&1" >> /var/spool/cron/root;chmod 600 /var/spool/cron/root; }
+ntpdate time.stdtime.gov.tw
+[ ! -e "/var/spool/cron/root" -o -z "`grep 'ntpdate' /var/spool/cron/root`" ] && { echo "*/20 * * * * `which ntpdate` time.stdtime.gov.tw > /dev/null 2>&1" >> /var/spool/cron/root;chmod 600 /var/spool/cron/root; }
 service crond restart
 
 # iptables
