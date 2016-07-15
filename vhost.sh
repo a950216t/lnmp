@@ -326,7 +326,7 @@ elif [ "$apache_ssl_yn" == 'y' ]; then
     [ -z "`grep 'Listen 443' $apache_install_dir/conf/httpd.conf`" ] && sed -i "s@Listen 80@&\nListen 443@" $apache_install_dir/conf/httpd.conf
     [ -z "`grep 'ServerName 0.0.0.0:443' $apache_install_dir/conf/httpd.conf`" ] && sed -i "s@ServerName 0.0.0.0:80@&\nServerName 0.0.0.0:443@" $apache_install_dir/conf/httpd.conf
 else
-    Nginx_conf='listen 80;\n#listen [::]:80;'
+    Nginx_conf=$(echo -e "listen 80;\n#listen [::]:80;")
 fi
 
 while :; do echo
