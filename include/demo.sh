@@ -11,10 +11,10 @@
 DEMO() {
 cd $oneinstack_dir/src
 
-[ "$IPADDR_STATE"x == "TW"x ] && /bin/cp ../config/index_tw.html $wwwroot_dir/default/index.html || /bin/cp ../config/index.html $wwwroot_dir/default
+[ "$IPADDR_COUNTRY"x == "TW"x ] && /bin/cp ../config/index_tw.html $wwwroot_dir/default/index.html || /bin/cp ../config/index.html $wwwroot_dir/default
 
 if [ -e "$php_install_dir/bin/php" ];then
-    if [ "$IPADDR_STATE"x == "TW"x ];then
+    if [ "$IPADDR_COUNTRY"x == "TW"x ];then
         src_url=http://blog.myxnova.com/phpinfo/tz_tw.zip && Download_src
         unzip -q tz_tw.zip -d $wwwroot_dir/default
     else

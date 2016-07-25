@@ -8,7 +8,7 @@ try:
     data = eval(content)['data']
     code = eval(content)['code']
     if code == 0:
-        print data['country']
+        print data['country_id'],data['isp_id']
     else:
         print data
 except:

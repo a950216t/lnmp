@@ -38,7 +38,7 @@ sed -i "s@^oneinstack_dir.*@oneinstack_dir=`pwd`@" ./options.conf
 
 # get the IP information
 PUBLIC_IPADDR=`./include/get_public_ipaddr.py`
-[ "`./include/get_ipaddr_state.py $PUBLIC_IPADDR`" == '\u53f0\u6e7e' ] && IPADDR_STATE=TW
+IPADDR_COUNTRY=`./include/get_ipaddr_state.py $PUBLIC_IPADDR | awk '{print $1}'`
 
 Usage(){
 printf "

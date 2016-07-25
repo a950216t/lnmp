@@ -13,7 +13,7 @@ cd $oneinstack_dir/src
 
 FILE_NAME=mariadb-${mariadb_10_0_version}-${GLIBC_FLAG}-${SYS_BIT_b}.tar.gz
 
-if [ "$IPADDR_STATE"x == "TW"x ] || [ "$IPADDR_STATE"x == "US"x ];then
+if [ "$IPADDR_COUNTRY"x == "TW"x ] || [ "$IPADDR_COUNTRY"x == "US"x ];then
     DOWN_ADDR_MARIADB=http://sfo1.mirrors.digitalocean.com/mariadb/mariadb-${mariadb_10_0_version}/bintar-${GLIBC_FLAG}-$SYS_BIT_a
     MARAIDB_TAR_MD5=`curl -Lk $DOWN_ADDR_MARIADB/md5sums.txt | grep $FILE_NAME | awk '{print $1}'`
     [ -z "$MARAIDB_TAR_MD5" ] && { DOWN_ADDR_MARIADB=http://archive.mariadb.org/mariadb-${mariadb_10_0_version}/bintar-${GLIBC_FLAG}-$SYS_BIT_a; MARAIDB_TAR_MD5=`curl -Lk $DOWN_ADDR_MARIADB/md5sums.txt | grep $FILE_NAME | awk '{print $1}'`; }
