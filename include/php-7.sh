@@ -74,7 +74,7 @@ if [[ $Apache_version =~ ^[1-2]$ ]] || [ -e "$apache_install_dir/bin/apxs" ];the
 --enable-sysvsem --enable-inline-optimization --with-curl --enable-mbregex \
 --enable-mbstring --with-mcrypt --with-gd --enable-gd-native-ttf --with-openssl \
 --with-mhash --enable-pcntl --enable-sockets --with-xmlrpc --enable-ftp --enable-intl --with-xsl \
---with-gettext --enable-zip --enable-soap --disable-debug
+--with-gettext --enable-zip --enable-soap --enable-calendar
 else
     ./configure --prefix=$php_install_dir --with-config-file-path=$php_install_dir/etc \
 --with-config-file-scan-dir=$php_install_dir/etc/php.d \
@@ -85,7 +85,7 @@ else
 --enable-sysvsem --enable-inline-optimization --with-curl --enable-mbregex \
 --enable-mbstring --with-mcrypt --with-gd --enable-gd-native-ttf --with-openssl \
 --with-mhash --enable-pcntl --enable-sockets --with-xmlrpc --enable-ftp --enable-intl --with-xsl \
---with-gettext --enable-zip --enable-soap --disable-debug
+--with-gettext --enable-zip --enable-soap --enable-calendar
 fi
 make ZEND_EXTRA_LIBS='-liconv' -j ${THREAD}
 make install
