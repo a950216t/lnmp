@@ -14,14 +14,14 @@ cd $oneinstack_dir/src
 OLD_DB_version_tmp=`$db_install_dir/bin/mysql -V | awk '{print $5}' | awk -F, '{print $1}'`
 DB_tmp=`echo $OLD_DB_version_tmp | awk -F'-' '{print $2}'`
 if [ "$DB_tmp" == 'MariaDB' ];then
-    [ "$IPADDR_COUNTRY"x == "TW"x ] && DOWN_ADDR=http://sfo1.mirrors.digitalocean.com/mariadb || DOWN_ADDR=https://downloads.mariadb.org/f
+    [ "$IPADDR_COUNTRY"x == "CN"x ] && DOWN_ADDR=https://mirrors.tuna.tsinghua.edu.cn/mariadb || DOWN_ADDR=http://sfo1.mirrors.digitalocean.com/mariadb
     DB=MariaDB
     OLD_DB_version=`echo $OLD_DB_version_tmp | awk -F'-' '{print $1}'`
 elif [ -n "$DB_tmp" -a "$DB_tmp" != 'MariaDB' ];then
     DB=Percona
     OLD_DB_version=$OLD_DB_version_tmp
 else
-    [ "$IPADDR_COUNTRY"x == "TW"x ] && DOWN_ADDR=http://mysql.stu.edu.tw/Downloads || DOWN_ADDR=http://cdn.mysql.com/Downloads
+    [ "$IPADDR_COUNTRY"x == "CN"x ] && DOWN_ADDR=http://mirrors.sohu.com/mysql || DOWN_ADDR=http://mysql.he.net/Downloads
     DB=MySQL
     OLD_DB_version=$OLD_DB_version_tmp
 fi
