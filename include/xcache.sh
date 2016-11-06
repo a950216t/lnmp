@@ -9,34 +9,36 @@
 #       https://github.com/lj2007331/oneinstack
 
 Install_XCache() {
-cd $oneinstack_dir/src
-tar xzf xcache-$xcache_version.tar.gz
-cd xcache-$xcache_version
-make clean
-$php_install_dir/bin/phpize
-./configure --enable-xcache --enable-xcache-coverager --enable-xcache-optimizer --with-php-config=$php_install_dir/bin/php-config
-make -j ${THREAD} && make install
-if [ -f "`$php_install_dir/bin/php-config --extension-dir`/xcache.so" ];then
-    /bin/cp -R htdocs $wwwroot_dir/default/xcache
-    chown -R ${run_user}.$run_user $wwwroot_dir/default/xcache
-    touch /tmp/xcache;chown ${run_user}.$run_user /tmp/xcache
-
-    cat > $php_install_dir/etc/php.d/ext-xcache.ini << EOF
+  pushd ${oneinstack_dir}/src
+  phpExtensionDir=$(${php_install_dir}/bin/php-config --extension-dir)
+  tar xzf xcache-${xcache_version}.tar.gz
+  pushd xcache-${xcache_version}
+  ${php_install_dir}/bin/phpize
+  ./configure --enable-xcache --enable-xcache-coverager --enable-xcache-optimizer --with-php-config=${php_install_dir}/bin/php-config
+  make -j ${THREAD} && make install
+  if [ -f "${phpExtensionDir}/xcache.so" ]; then
+    /bin/cp -R htdocs ${wwwroot_dir}/default/xcache
+    popd
+    chown -R ${run_user}.${run_user} ${wwwroot_dir}/default/xcache
+    touch /tmp/xcache;chown ${run_user}.${run_user} /tmp/xcache
+    let xcacheCount="${CPU}+1"
+    let xcacheSize="${Memory_limit}/2"
+    cat > ${php_install_dir}/etc/php.d/ext-xcache.ini << EOF
 [xcache-common]
 extension=xcache.so
 [xcache.admin]
 xcache.admin.enable_auth=On
 xcache.admin.user=admin
-xcache.admin.pass="$xcache_admin_md5_pass"
+xcache.admin.pass="${xcache_admin_md5_pass}"
 
 [xcache]
-xcache.size=$(expr $Memory_limit / 2)M
-xcache.count=$(expr `cat /proc/cpuinfo | grep -c processor` + 1)
+xcache.size=${xcacheSize}M
+xcache.count=${xcacheCount}
 xcache.slots=8K
 xcache.ttl=3600
 xcache.gc_interval=300
 xcache.var_size=4M
-xcache.var_count=$(expr `cat /proc/cpuinfo | grep -c processor` + 1)
+xcache.var_count=${xcacheCount}
 xcache.var_slots=8K
 xcache.var_ttl=0
 xcache.var_maxttl=0
@@ -59,11 +61,9 @@ xcache.coverager_autostart = On
 xcache.coveragedump_directory = ""
 EOF
     echo "${CSUCCESS}Xcache module installed successfully! ${CEND}"
-    cd ..
-    rm -rf xcache-$xcache_version
-    [ "$Apache_version" != '1' -a "$Apache_version" != '2' ] && service php-fpm restart || service httpd restart
-else
+    rm -rf xcache-${xcache_version}
+  else
     echo "${CFAILURE}Xcache module install failed, Please contact the author! ${CEND}"
-fi
-cd ..
+  fi
+  popd
 }
