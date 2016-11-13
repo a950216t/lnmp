@@ -276,6 +276,25 @@ Input_Add_domain() {
     fi
   done
 
+  while :; do echo
+    echo "Please input the directory for the domain:${domain} :"
+    read -p "(Default directory: ${wwwroot_dir}/${domain}): " vhostdir
+    if [ -n "${vhostdir}" -a -z "$(echo ${vhostdir} | grep '^/')" ]; then
+      echo "${CWARNING}input error! Press Enter to continue...${CEND}"
+    else
+      if [ -z "${vhostdir}" ]; then
+        vhostdir="${wwwroot_dir}/${domain}"
+        echo "Virtual Host Directory=${CMSG}${vhostdir}${CEND}"
+      fi
+      echo
+      echo "Create Virtul Host directory......"
+      mkdir -p ${vhostdir}
+      echo "set permissions of Virtual Host directory......"
+      chown -R ${run_user}.${run_user} ${vhostdir}
+      break
+    fi
+  done
+
   if [ -e "${web_install_dir}/conf/vhost/${domain}.conf" -o -e "${apache_install_dir}/conf/vhost/${domain}.conf" -o -e "${tomcat_install_dir}/conf/vhost/${domain}.xml" ]; then
     [ -e "${web_install_dir}/conf/vhost/${domain}.conf" ] && echo -e "${domain} in the Nginx/Tengine/OpenResty already exist! \nYou can delete ${CMSG}${web_install_dir}/conf/vhost/${domain}.conf${CEND} and re-create"
     [ -e "${apache_install_dir}/conf/vhost/${domain}.conf" ] && echo -e "${domain} in the Apache already exist! \nYou can delete ${CMSG}${apache_install_dir}/conf/vhost/${domain}.conf${CEND} and re-create"
@@ -331,25 +350,6 @@ Input_Add_domain() {
         break
       fi
     done
-
-  while :; do echo
-    echo "Please input the directory for the domain:${domain} :"
-    read -p "(Default directory: ${wwwroot_dir}/${domain}): " vhostdir
-    if [ -n "${vhostdir}" -a -z "$(echo ${vhostdir} | grep '^/')" ]; then
-      echo "${CWARNING}input error! Press Enter to continue...${CEND}"
-    else
-      if [ -z "${vhostdir}" ]; then
-        vhostdir="${wwwroot_dir}/${domain}"
-        echo "Virtual Host Directory=${CMSG}${vhostdir}${CEND}"
-      fi
-      echo
-      echo "Create Virtul Host directory......"
-      mkdir -p ${vhostdir}
-      echo "set permissions of Virtual Host directory......"
-      chown -R ${run_user}.${run_user} ${vhostdir}
-      break
-    fi
-  done
 
     if [[ "$(${web_install_dir}/sbin/nginx -V 2>&1 | grep -Eo 'with-http_v2_module')" = 'with-http_v2_module' ]]; then
       LISTENOPT="443 ssl http2"
