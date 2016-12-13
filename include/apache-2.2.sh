@@ -45,12 +45,10 @@ Install_Apache22() {
   if [ "$Nginx_version" == '4' -a ! -e "$web_install_dir/sbin/nginx" ]; then
     sed -i 's/^#ServerName www.example.com:80/ServerName 0.0.0.0:80/' $apache_install_dir/conf/httpd.conf
     TMP_PORT=80
-    TMP_IP=$IPADDR
   elif [[ $Nginx_version =~ ^[1-3]$ ]] || [ -e "$web_install_dir/sbin/nginx" ]; then
     sed -i 's/^#ServerName www.example.com:80/ServerName 127.0.0.1:88/' $apache_install_dir/conf/httpd.conf
     sed -i 's@^Listen.*@Listen 127.0.0.1:88@' $apache_install_dir/conf/httpd.conf
     TMP_PORT=88
-    TMP_IP=127.0.0.1
   fi
   sed -i "s@AddType\(.*\)Z@AddType\1Z\n    AddType application/x-httpd-php .php .phtml\n    AddType application/x-httpd-php-source .phps@" $apache_install_dir/conf/httpd.conf
   sed -i "s@#AddHandler cgi-script .cgi@AddHandler cgi-script .cgi .pl@" $apache_install_dir/conf/httpd.conf
@@ -81,7 +79,7 @@ NameVirtualHost *:$TMP_PORT
 <VirtualHost *:$TMP_PORT>
   ServerAdmin admin@linuxeye.com
   DocumentRoot "$wwwroot_dir/default"
-  ServerName $TMP_IP
+  ServerName 127.0.0.1
   ErrorLog "$wwwlogs_dir/error_apache.log"
   CustomLog "$wwwlogs_dir/access_apache.log" common
 <Directory "$wwwroot_dir/default">
