@@ -82,7 +82,7 @@ $wwwlogs_dir/*apache.log {
   notifempty
   sharedscripts
   postrotate
-    [ -f $apache_install_dir/logs/httpd.pid ] && kill -USR1 \`cat $apache_install_dir/logs/httpd.pid\`
+    [ -e /var/run/httpd.pid ] && kill -USR1 \`cat /var/run/httpd.pid\`
   endscript
 }
 EOF
@@ -124,6 +124,7 @@ EOF
   SetOutputFilter DEFLATE
 </IfModule>
 
+PidFile /var/run/httpd.pid
 ServerTokens ProductOnly
 ServerSignature Off
 Include conf/vhost/*.conf
