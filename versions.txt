@@ -88,6 +88,6 @@ libevent_version=2.0.22-stable
 tmux_version=2.2
 htop_version=2.0.2
 bison_version=2.7.1
-python_version=2.7.12
+python_version=2.7.13
 setuptools_version=32.0.0
 pip_version=9.0.1
