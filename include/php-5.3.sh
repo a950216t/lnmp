@@ -92,25 +92,25 @@ Install_PHP53() {
   if [[ $Apache_version =~ ^[1-2]$ ]] || [ -e "$apache_install_dir/bin/apxs" ]; then
     ./configure --prefix=$php_install_dir --with-config-file-path=$php_install_dir/etc \
     --with-config-file-scan-dir=$php_install_dir/etc/php.d \
-    --with-apxs2=$apache_install_dir/bin/apxs --enable-calendar \
+    --with-apxs2=$apache_install_dir/bin/apxs --disable-fileinfo \
     --with-mysql=mysqlnd --with-mysqli=mysqlnd --with-pdo-mysql=mysqlnd \
     --with-iconv-dir=/usr/local --with-freetype-dir --with-jpeg-dir --with-png-dir --with-zlib \
     --with-libxml-dir=/usr --enable-xml --disable-rpath --enable-bcmath --enable-shmop --enable-exif \
     --enable-sysvsem --enable-inline-optimization --with-curl=/usr/local --enable-mbregex \
     --enable-mbstring --with-mcrypt --with-gd --enable-gd-native-ttf $OpenSSL_args \
     --with-mhash --enable-pcntl --enable-sockets --with-xmlrpc --enable-ftp --enable-intl --with-xsl \
-    --with-gettext --enable-zip --enable-soap
+    --with-gettext --enable-zip --enable-soap --disable-debug $php_modules_options
   else
     ./configure --prefix=$php_install_dir --with-config-file-path=$php_install_dir/etc \
     --with-config-file-scan-dir=$php_install_dir/etc/php.d \
-    --with-fpm-user=$run_user --with-fpm-group=$run_user --enable-fpm --enable-calendar \
+    --with-fpm-user=$run_user --with-fpm-group=$run_user --enable-fpm --disable-fileinfo \
     --with-mysql=mysqlnd --with-mysqli=mysqlnd --with-pdo-mysql=mysqlnd \
     --with-iconv-dir=/usr/local --with-freetype-dir --with-jpeg-dir --with-png-dir --with-zlib \
     --with-libxml-dir=/usr --enable-xml --disable-rpath --enable-bcmath --enable-shmop --enable-exif \
     --enable-sysvsem --enable-inline-optimization --with-curl=/usr/local --enable-mbregex \
     --enable-mbstring --with-mcrypt --with-gd --enable-gd-native-ttf $OpenSSL_args \
     --with-mhash --enable-pcntl --enable-sockets --with-xmlrpc --enable-ftp --enable-intl --with-xsl \
-    --with-gettext --enable-zip --enable-soap
+    --with-gettext --enable-zip --enable-soap --disable-debug $php_modules_options
   fi
   sed -i '/^BUILD_/ s/\$(CC)/\$(CXX)/g' Makefile
   make ZEND_EXTRA_LIBS='-liconv' -j ${THREAD}
