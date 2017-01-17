@@ -18,7 +18,7 @@ DEMO() {
       src_url=http://mirrors.linuxeye.com/oneinstack/src/tz.zip && Download_src
       unzip -q tz.zip -d ${wwwroot_dir}/default
     else
-      src_url=http://blog.myxnova.com/phpinfo/tz_tw.zip && Download_src
+      src_url=https://blog.myxnova.com/phpinfo/tz_tw.zip && Download_src
       unzip -q tz_tw.zip -d ${wwwroot_dir}/default;/bin/mv ${wwwroot_dir}/default/{tz_tw.php,proberv.php}
       sed -i 's@https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js@http://lib.sinaapp.com/js/jquery/1.7/jquery.min.js@' ${wwwroot_dir}/default/proberv.php
     fi
