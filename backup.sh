@@ -8,6 +8,9 @@
 #       https://oneinstack.com
 #       https://github.com/lj2007331/oneinstack
 
+# Check if user is root
+[ $(id -u) != "0" ] && { echo "${CFAILURE}Error: You must be root to run this script${CEND}"; exit 1; }
+
 pushd tools > /dev/null
 . ../options.conf
 
