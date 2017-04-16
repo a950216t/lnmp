@@ -162,6 +162,7 @@ EOF
     endscript
 }
 EOF
+  sed -i 's@^iptables = iptables.*@iptables = iptables@' /etc/fail2ban/action.d/iptables-common.conf
   kill -9 `ps -ef | grep fail2ban | grep -v grep | awk '{print $2}'` > /dev/null 2>&1
   /etc/init.d/fail2ban start
   popd
