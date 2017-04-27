@@ -108,7 +108,7 @@ if [ "$CONTENT_BK" != '2' ]; then
   sed -i "s@^db_name=.*@db_name=$db_name@" ./options.conf
 fi
 
-if [ "$CONTENT_BK" != '1' ];then
+if [ "$CONTENT_BK" != '1' ]; then
   websites=`ls $wwwroot_dir | grep -vw default`
   while :; do echo
     echo "Please enter one or more name for website, separate multiple website names with commas: "
