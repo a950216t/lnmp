@@ -53,8 +53,6 @@ Install_Apache24() {
   [ -n "`grep ^'export PATH=' /etc/profile`" -a -z "`grep ${apache_install_dir} /etc/profile`" ] && sed -i "s@^export PATH=\(.*\)@export PATH=${apache_install_dir}/bin:\1@" /etc/profile
   . /etc/profile
   
-  sed -i "s@^export LD_LIBRARY_PATH.*@export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:${openssl_install_dir}/lib@" ${apache_install_dir}/bin/envvars
-
   /bin/cp ${apache_install_dir}/bin/apachectl /etc/init.d/httpd
   sed -i '2a # chkconfig: - 85 15' /etc/init.d/httpd
   sed -i '3a # description: Apache is a World Wide Web server. It is used to serve' /etc/init.d/httpd
@@ -145,7 +143,7 @@ ServerTokens ProductOnly
 ServerSignature Off
 Include conf/vhost/*.conf
 EOF
-  [[ ! $Nginx_version =~ ^[1-3]$ ]] && [ ! -e "${web_install_dir}/sbin/nginx" ] && echo 'Protocols h2 http/1.1' >> ${apache_install_dir}/conf/httpd.conf
+  [ "${Nginx_version}" == '4' -a ! -e "${web_install_dir}/sbin/nginx" ] && echo 'Protocols h2 http/1.1' >> ${apache_install_dir}/conf/httpd.conf
   if [ "${Nginx_version}" != '4' -o -e "${web_install_dir}/sbin/nginx" ]; then
     cat > ${apache_install_dir}/conf/extra/httpd-remoteip.conf << EOF
 LoadModule remoteip_module modules/mod_remoteip.so

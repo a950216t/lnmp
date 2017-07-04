@@ -243,7 +243,7 @@ EOF
           Cron_Command="/etc/init.d/httpd graceful"
         fi
         [ "${OS}" == "CentOS" ] && Cron_file=/var/spool/cron/root || Cron_file=/var/spool/cron/crontabs/root
-        [ -z "$(grep 'certbot renew' ${Cron_file})" ] && echo "30 2 * * 1 ${python_install_dir}/bin/certbot renew --renew-hook \"${Cron_Command}\"" >> $Cron_file
+        [ -z "$(grep 'certbot renew' ${Cron_file})" ] && echo "30 2 * * 1 ${python_install_dir}/bin/certbot renew --force-renew --renew-hook \"${Cron_Command}\"" >> $Cron_file
       else
         echo "${CFAILURE}Error: Let's Encrypt SSL certificate installation failed! ${CEND}"
         exit 1
@@ -500,7 +500,7 @@ server {
 }
 EOF
 
-  [ "${https_yn}" == 'y' ] && sed -i "s@^root.*;@&\nif (\$ssl_protocol = \"\") { return 301 https://\$server_name\$request_uri; }@" ${web_install_dir}/conf/vhost/${domain}.conf
+  [ "${https_yn}" == 'y' ] && sed -i "s@^root.*;@&\nif (\$ssl_protocol = \"\") { return 301 https://\$host\$request_uri; }@" ${web_install_dir}/conf/vhost/${domain}.conf
 
   cat > ${tomcat_install_dir}/conf/vhost/${domain}.xml << EOF
 <Host name="${domain}" appBase="${vhostdir}" unpackWARs="true" autoDeploy="true"> ${Tomcat_Domain_alias}
@@ -626,7 +626,7 @@ EOF
     fi
   fi
 
-  [ "${https_yn}" == 'y' ] && sed -i "s@^  root.*;@&\n  if (\$ssl_protocol = \"\") { return 301 https://\$server_name\$request_uri; }@" ${web_install_dir}/conf/vhost/${domain}.conf
+  [ "${https_yn}" == 'y' ] && sed -i "s@^  root.*;@&\n  if (\$ssl_protocol = \"\") { return 301 https://\$host\$request_uri; }@" ${web_install_dir}/conf/vhost/${domain}.conf
 
   echo
   ${web_install_dir}/sbin/nginx -t
@@ -773,7 +773,7 @@ server {
 }
 EOF
 
-  [ "${https_yn}" == 'y' ] && sed -i "s@^  root.*;@&\n  if (\$ssl_protocol = \"\") { return 301 https://\$server_name\$request_uri; }@" ${web_install_dir}/conf/vhost/${domain}.conf
+  [ "${https_yn}" == 'y' ] && sed -i "s@^  root.*;@&\n  if (\$ssl_protocol = \"\") { return 301 https://\$host\$request_uri; }@" ${web_install_dir}/conf/vhost/${domain}.conf
 
   echo
   ${web_install_dir}/sbin/nginx -t

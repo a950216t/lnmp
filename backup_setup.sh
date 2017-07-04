@@ -17,11 +17,14 @@ printf "
 #       For more information please visit https://oneinstack.com      #
 #######################################################################
 "
+# get pwd
+sed -i "s@^oneinstack_dir.*@oneinstack_dir=$(pwd)@" ./options.conf
 
 . ./options.conf
 . ./versions.txt
 . ./include/color.sh
 . ./include/check_dir.sh
+. ./include/download.sh
 . ./include/python.sh
 
 # Check if user is root

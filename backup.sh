@@ -75,7 +75,7 @@ WEB_COS_BK() {
       tar czf $PUSH_FILE ./$W
       popd
     fi
-    ${python_install_dir}/bin/python ./coscmd put $PUSH_FILE /`date +%F`/$Web_FILE
+    ${python_install_dir}/bin/python ./coscmd put $PUSH_FILE /`date +%F`/Web_${W}_$(date +%Y%m%d_%H).tgz
     [ $? -eq 0 ] && { [ -e "$PUSH_FILE" ] && rm -rf $PUSH_FILE; ${python_install_dir}/bin/python ./coscmd rm /`date +%F --date="$expired_days days ago"`/ > /dev/null 2>&1; }
   done
 }
