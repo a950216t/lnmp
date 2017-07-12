@@ -1,6 +1,6 @@
 # newest software version
 # Web
-nginx_version=1.12.0
+nginx_version=1.12.1
 tengine_version=2.1.2
 openresty_version=1.11.2.3
 openssl_version=1.0.2l
@@ -9,12 +9,12 @@ tomcat8_version=8.5.15
 tomcat7_version=7.0.78
 tomcat6_version=6.0.53
 
-apache24_version=2.4.26
-apache22_version=2.2.32
+apache24_version=2.4.27
+apache22_version=2.2.34
 pcre_version=8.40
 apr_version=1.6.2
 apr_util_version=1.6.0
-nghttp2_version=1.23.1
+nghttp2_version=1.24.0
 
 # DB
 mysql57_version=5.7.18
@@ -22,7 +22,7 @@ mysql56_version=5.6.36
 mysql55_version=5.5.56
 
 mariadb102_version=10.2.6
-mariadb101_version=10.1.24
+mariadb101_version=10.1.25
 mariadb100_version=10.0.31
 mariadb55_version=5.5.56
 
@@ -38,9 +38,9 @@ jdk17_version=1.7.0_80
 jdk16_version=1.6.0_45
 
 # PHP
-php71_version=7.1.6
-php70_version=7.0.20
-php56_version=5.6.30
+php71_version=7.1.7
+php70_version=7.0.21
+php56_version=5.6.31
 php55_version=5.5.38
 php54_version=5.4.45
 php53_version=5.3.29
@@ -71,7 +71,7 @@ redis_pecl_for_php7_version=3.1.2
 redis_pecl_version=2.2.8
 
 # Memcached
-memcached_version=1.4.38
+memcached_version=1.4.39
 libmemcached_version=1.0.18
 memcached_pecl_version=2.2.0
 memcached_pecl_php7_version=3.0.3
@@ -94,4 +94,4 @@ bison_version=2.7.1
 python_version=2.7.13
 setuptools_version=32.0.0
 pip_version=9.0.1
-fail2ban_version=0.9.6
+fail2ban_version=0.9.7
