@@ -2,11 +2,11 @@
 # Web
 nginx_version=1.12.1
 tengine_version=2.1.2
-openresty_version=1.11.2.3
+openresty_version=1.11.2.4
 openssl_version=1.0.2l
 
-tomcat8_version=8.5.15
-tomcat7_version=7.0.78
+tomcat8_version=8.5.16
+tomcat7_version=7.0.79
 tomcat6_version=6.0.53
 
 apache24_version=2.4.27
@@ -21,7 +21,7 @@ mysql57_version=5.7.18
 mysql56_version=5.6.36
 mysql55_version=5.5.56
 
-mariadb102_version=10.2.6
+mariadb102_version=10.2.7
 mariadb101_version=10.1.25
 mariadb100_version=10.0.31
 mariadb55_version=5.5.56
