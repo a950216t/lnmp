@@ -173,11 +173,11 @@ if [[ "$DESC_BK" =~ ^[3,5,6]$ ]]; then
   sed -i "s/if query_yes_no/#if query_yes_no/" ${python_install_dir}/lib/python2.7/site-packages/coscmd/cos_client.py
   while :; do echo
     echo 'Please select your backup datacenter:'
-    echo -e "\t ${CMSG}1${CEND}. 北京一区(华北)  ${CMSG}2${CEND}. 北京"
-    echo -e "\t ${CMSG}3${CEND}. 上海(华东)      ${CMSG}4${CEND}. 广州(华南)"
+    echo -e "\t ${CMSG}1${CEND}. 北京一區(華北)  ${CMSG}2${CEND}. 北京"
+    echo -e "\t ${CMSG}3${CEND}. 上海(華東)      ${CMSG}4${CEND}. 廣州(華南)"
     echo -e "\t ${CMSG}5${CEND}. 成都(西南)      ${CMSG}6${CEND}. 新加坡"
-    echo -e "\t ${CMSG}7${CEND}. 香港            ${CMSG}8${CEND}. 多伦多"
-    echo -e "\t ${CMSG}9${CEND}. 法兰克福"
+    echo -e "\t ${CMSG}7${CEND}. 香港            ${CMSG}8${CEND}. 多倫多"
+    echo -e "\t ${CMSG}9${CEND}. 法蘭克福"
     read -p "Please input a number:(Default 1 press Enter) " Location
     [ -z "$Location" ] && Location=1
     if [ ${Location} -ge 1 >/dev/null 2>&1 -a ${Location} -le 9 >/dev/null 2>&1 ]; then
