@@ -5,7 +5,7 @@ proc Usage_Exit {self} {
   puts "Usage: $self ip user passwd port sourcefile destdir direction bwlimit timeout"
   puts ""
   puts "       sourcefile: a file or directory to be transferred"
-  puts "                   需要拷貝目錄時目錄名後不要帶 /, 否則會拷貝該目錄下的所有檔"
+  puts "                   需要拷貝目錄時目錄名後不要帶「/」，否則會拷貝該目錄下的所有檔"
   puts "       destdir:    the location that the sourcefile to be put into"
   puts "       direction:  pull or push"
   puts "                   pull: remote -> local"
