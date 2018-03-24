@@ -1,8 +1,8 @@
 #!/bin/bash
 # Author:  yeho <lj2007331 AT gmail.com>
-# BLOG:  https://blog.linuxeye.com
+# BLOG:  https://blog.linuxeye.cn
 #
-# Notes: OneinStack for CentOS/RadHat 5+ Debian 6+ and Ubuntu 12+
+# Notes: OneinStack for CentOS/RadHat 6+ Debian 6+ and Ubuntu 12+
 #
 # Project home page:
 #       https://oneinstack.com
@@ -85,11 +85,11 @@ sed -i 's@^# en_US.UTF-8@en_US.UTF-8@' /etc/locale.gen
 init q
 
 # Update time
-ntpdate time.stdtime.gov.tw
-[ ! -e "/var/spool/cron/crontabs/root" -o -z "$(grep ntpdate /var/spool/cron/crontabs/root 2>/dev/null)" ] && { echo "*/20 * * * * $(which ntpdate) time.stdtime.gov.tw > /dev/null 2>&1" >> /var/spool/cron/crontabs/root;chmod 600 /var/spool/cron/crontabs/root; }
+ntpdate pool.ntp.org
+[ ! -e "/var/spool/cron/crontabs/root" -o -z "$(grep ntpdate /var/spool/cron/crontabs/root 2>/dev/null)" ] && { echo "*/20 * * * * $(which ntpdate) pool.ntp.org > /dev/null 2>&1" >> /var/spool/cron/crontabs/root;chmod 600 /var/spool/cron/crontabs/root; }
 
 # iptables
-if [ "$iptables_yn" == 'y' ]; then
+if [ "${iptables_yn}" == 'y' ]; then
   if [ -e "/etc/iptables.up.rules" ] && [ -n "$(grep '^:INPUT DROP' /etc/iptables.up.rules)" -a -n "$(grep 'NEW -m tcp --dport 22 -j ACCEPT' /etc/iptables.up.rules)" -a -n "$(grep 'NEW -m tcp --dport 80 -j ACCEPT' /etc/iptables.up.rules)" ]; then
     IPTABLES_STATUS=yes
   else
@@ -109,8 +109,27 @@ if [ "$iptables_yn" == 'y' ]; then
 -A INPUT -i lo -j ACCEPT
 -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
 -A INPUT -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 25 -j ACCEPT
 -A INPUT -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT
+-A INPUT -p udp -m state --state NEW -m udp --dport 137 -j ACCEPT
+-A INPUT -p udp -m state --state NEW -m udp --dport 138 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 139 -j ACCEPT
 -A INPUT -p tcp -m state --state NEW -m tcp --dport 443 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 445 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 1024 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 1688 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 1723 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 3306 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 3389 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 5900:6000 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 8000 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 8123 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 8142 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 8888 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 17570:17575 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 19999 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 25565 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 33333:35000 -j ACCEPT
 -A INPUT -p icmp -m limit --limit 1/sec --limit-burst 10 -j ACCEPT
 -A INPUT -f -m limit --limit 100/sec --limit-burst 100 -j ACCEPT
 -A INPUT -p tcp -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -j syn-flood
@@ -121,8 +140,8 @@ COMMIT
 EOF
   fi
 
-  FW_PORT_FLAG=$(grep -ow "dport ${SSH_PORT}" /etc/iptables.up.rules)
-  [ -z "${FW_PORT_FLAG}" -a "${SSH_PORT}" != "22" ] && sed -i "s@dport 22 -j ACCEPT@&\n-A INPUT -p tcp -m state --state NEW -m tcp --dport ${SSH_PORT} -j ACCEPT@" /etc/iptables.up.rules
+  FW_PORT_FLAG=$(grep -ow "dport ${ssh_port}" /etc/iptables.up.rules)
+  [ -z "${FW_PORT_FLAG}" -a "${ssh_port}" != "22" ] && sed -i "s@dport 22 -j ACCEPT@&\n-A INPUT -p tcp -m state --state NEW -m tcp --dport ${ssh_port} -j ACCEPT@" /etc/iptables.up.rules
   iptables-restore < /etc/iptables.up.rules
   cat > /etc/network/if-pre-up.d/iptables << EOF
 #!/bin/bash
