@@ -620,7 +620,7 @@ EOF
     [ "${redirect_flag}" == 'y' ] && sed -i "s@^  root.*;@&\n  if (\$host != $domain) {  return 301 \$scheme://${domain}\$request_uri;  }@" ${web_install_dir}/conf/vhost/${domain}.conf
     
     if [ "${nginx_ssl_flag}" == 'y' ]; then
-      sed -i "s@^  listen 80;@&\n  listen ${LISTENOPT};@" ${web_install_dir}/conf/vhost/${domain}.conf
+      sed -i "s@^  listen 80;@&\n  listen [::]:80;\n  listen ${LISTENOPT};@" ${web_install_dir}/conf/vhost/${domain}.conf
       sed -i "s@^  server_name.*;@&\n  ssl_stapling_verify on;@" ${web_install_dir}/conf/vhost/${domain}.conf
       sed -i "s@^  server_name.*;@&\n  ssl_stapling on;@" ${web_install_dir}/conf/vhost/${domain}.conf
       sed -i "s@^  server_name.*;@&\n  add_header Strict-Transport-Security max-age=15768000;@" ${web_install_dir}/conf/vhost/${domain}.conf
