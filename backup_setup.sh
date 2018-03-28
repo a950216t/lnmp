@@ -34,9 +34,9 @@ while :; do echo
   echo 'Please select your backup destination:'
   echo -e "\t${CMSG}1${CEND}. Localhost"
   echo -e "\t${CMSG}2${CEND}. Remote host"
-  echo -e "\t${CMSG}3${CEND}. Aliyun OSS" 
+  echo -e "\t${CMSG}3${CEND}. Aliyun OSS"
   echo -e "\t${CMSG}4${CEND}. Qcloud COS"
-  echo -e "\t${CMSG}5${CEND}. UPYUN（又拍雲）" 
+  echo -e "\t${CMSG}5${CEND}. UPYUN（又拍雲）"
   read -p "Please input a number:(Default 1 press Enter) " desc_bk
   [ -z "${desc_bk}" ] && desc_bk=1
   ary=(1 2 3 4 5 12 13 14 15 23 24 25 34 35 45 123 124 125 234 235 345 1234 1235 2345 12345)
@@ -116,7 +116,7 @@ if [ "${content_bk}" != '1' ]; then
   websites=`ls ${wwwroot_dir}`
   while :; do echo
     echo "Please enter one or more name for website, separate multiple website names with commas: "
-    read -p "(Default website: `echo $websites | tr ' ' ','`) " website_name 
+    read -p "(Default website: `echo $websites | tr ' ' ','`) " website_name
     website_name=`echo ${website_name} | tr -d ' '`
     [ -z "${website_name}" ] && website_name="`echo $websites | tr ' ' ','`"
     W_tmp=0
@@ -180,9 +180,9 @@ if [ `echo ${desc_bk} | grep -e 3` ]; then
     echo 'Please select your backup datacenter:'
     echo -e "\t ${CMSG}1${CEND}. cn-hangzhou-華東 1（杭州）         ${CMSG}2${CEND}. cn-shanghai-華東 2（上海）"
     echo -e "\t ${CMSG}3${CEND}. cn-qingdao-華北 1（青島）          ${CMSG}4${CEND}. cn-beijing-華北 2（北京）"
-    echo -e "\t ${CMSG}5${CEND}. cn-zhangjiakou-華北 3（張家口）    ${CMSG}6${CEND}. cn-huhehaote-華北 5（呼和浩特）" 
+    echo -e "\t ${CMSG}5${CEND}. cn-zhangjiakou-華北 3（張家口）    ${CMSG}6${CEND}. cn-huhehaote-華北 5（呼和浩特）"
     echo -e "\t ${CMSG}7${CEND}. cn-shenzhen-華南 1（深圳）         ${CMSG}8${CEND}. cn-hongkong-香港"
-    echo -e "\t ${CMSG}9${CEND}. us-west-美西 1（矽谷）            ${CMSG}10${CEND}. us-east-美東 1（維吉尼亞）" 
+    echo -e "\t ${CMSG}9${CEND}. us-west-美西 1（矽谷）            ${CMSG}10${CEND}. us-east-美東 1（維吉尼亞）"
     echo -e "\t${CMSG}11${CEND}. ap-southeast-亞太東南 1（新加坡） ${CMSG}12${CEND}. ap-southeast-亞太東南 2（雪梨）"
     echo -e "\t${CMSG}13${CEND}. ap-southeast-亞太東南 3（吉隆坡） ${CMSG}14${CEND}. ap-northeast-亞太東北 1（日本）"
     echo -e "\t${CMSG}15${CEND}. eu-central-歐洲中部 1（法蘭克福） ${CMSG}16${CEND}. me-east-中東東部 1（杜拜）"
@@ -211,7 +211,7 @@ if [ `echo ${desc_bk} | grep -e 3` ]; then
   [ "${Location}" == '15' ] && Host=oss-eu-central-1-internal.aliyuncs.com
   [ "${Location}" == '16' ] && Host=oss-me-east-1-internal.aliyuncs.com
   [ "$(./include/check_port.py ${Host} 80)" == "False" ] && Host=`echo ${Host} | sed 's@-internal@@g'`
-  [ -e "/root/.ossutilconfig" ] && rm -f /root/.ossutilconfig 
+  [ -e "/root/.ossutilconfig" ] && rm -f /root/.ossutilconfig
   while :; do echo
     read -p "Please enter the aliyun oss Access Key ID: " KeyID
     [ -z "${KeyID}" ] && continue
@@ -233,7 +233,7 @@ fi
 
 if [ `echo ${desc_bk} | grep -e 4` ]; then
   [ ! -e "${python_install_dir}/bin/python" ] && Install_Python
-  [ ! -e "${python_install_dir}/lib/coscmd" ] && ${python_install_dir}/bin/pip install coscmd >/dev/null 2>&1 
+  [ ! -e "${python_install_dir}/lib/coscmd" ] && ${python_install_dir}/bin/pip install coscmd >/dev/null 2>&1
   while :; do echo
     echo 'Please select your backup datacenter:'
     echo -e "\t ${CMSG}1${CEND}. 北京一區（華北）  ${CMSG}2${CEND}. 北京"
@@ -259,7 +259,7 @@ if [ `echo ${desc_bk} | grep -e 4` ]; then
   [ "${Location}" == '8' ] && region='na-toronto'
   [ "${Location}" == '9' ] && region='eu-frankfurt'
   while :; do echo
-    read -p "Please enter the Qcloud COS APPID: " APPID 
+    read -p "Please enter the Qcloud COS APPID: " APPID
     [ -z "${APPID}" ] && continue
     echo
     read -p "Please enter the Qcloud COS SecretId: " SecretId
@@ -268,7 +268,7 @@ if [ `echo ${desc_bk} | grep -e 4` ]; then
     read -p "Please enter the Qcloud COS SecretKey: " SecretKey
     [ -z "$SecretKey" ] && continue
     echo
-    read -p "Please enter the Qcloud COS bucket: " bucket 
+    read -p "Please enter the Qcloud COS bucket: " bucket
     [ -z "${bucket}" ] && continue
     echo
     ${python_install_dir}/bin/coscmd config -u ${APPID} -a ${SecretId} -s $SecretKey -r $region -b ${bucket} >/dev/null 2>&1
@@ -293,17 +293,16 @@ if [ `echo ${desc_bk} | grep -e 5` ]; then
     chmod +x /usr/local/bin/upx
   fi
   while :; do echo
-    read -p "Please enter the ServiceName: " ServiceName 
+    read -p "Please enter the ServiceName: " ServiceName
     [ -z "${ServiceName}" ] && continue
     echo
-    read -p "Please enter the Operator: " Operator 
+    read -p "Please enter the Operator: " Operator
     [ -z "${Operator}" ] && continue
     echo
-    read -p "Please enter the Password: " Password 
+    read -p "Please enter the Password: " Password
     [ -z "${Password}" ] && continue
     echo
     /usr/local/bin/upx login ${ServiceName} ${Operator} ${Password} >/dev/null 2>&1
-    /usr/local/bin/upx ls >/dev/null 2>&1
     if [ $? = 0 ]; then
       echo "${CMSG}ServiceName/Operator/Password OK${CEND}"
       echo
