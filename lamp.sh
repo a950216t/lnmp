@@ -207,8 +207,8 @@ while true; do
     _info "Please choose a version of the MariaDB:"
     _info "$(_green 1). MariaDB 10.11"
     _info "$(_green 2). MariaDB 11.4"
-    read -r -p "[$(date)] Please input a number: (Default 2) " mariadb_version
-    [ -z "${mariadb_version}" ] && mariadb_version=2
+    read -r -p "[$(date)] Please input a number: (Default 1) " mariadb_version
+    [ -z "${mariadb_version}" ] && mariadb_version=1
     case "${mariadb_version}" in
     1)
         mariadb_ver="10.11"
@@ -246,8 +246,8 @@ while true; do
     _info "$(_green 4). PHP 8.2"
     _info "$(_green 5). PHP 8.3"
     _info "$(_green 6). PHP 8.4"
-    read -r -p "[$(date)] Please input a number: (Default 5) " php_version
-    [ -z "${php_version}" ] && php_version=5
+    read -r -p "[$(date)] Please input a number: (Default 1) " php_version
+    [ -z "${php_version}" ] && php_version=1
     case "${php_version}" in
     1)
         php_ver="7.4"
@@ -287,7 +287,7 @@ char=$(get_char)
 
 _info "Initialization start"
 _error_detect "rm -f /etc/localtime"
-_error_detect "ln -s /usr/share/zoneinfo/Asia/Shanghai /etc/localtime"
+_error_detect "ln -s /usr/share/zoneinfo/Asia/Taipei /etc/localtime"
 _error_detect "apt-get update"
 _error_detect "apt-get -yq install lsb-release ca-certificates curl gnupg"
 _error_detect "apt-get -yq install vim tar zip unzip net-tools bind9-utils screen git virt-what wget whois mtr traceroute iftop htop jq tree"
