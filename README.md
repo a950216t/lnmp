@@ -133,6 +133,7 @@ Please feel free to report any bugs or issues to us, email to: admin@999199.xyz 
 ## License
 
 Copyright (C) 2013 - 2025 [Teddysun](https://teddysun.com/)
+
 Copyright (C) 2025 [a950216t](https://999199.xyz/)
 
 Licensed under the [GPLv3](LICENSE) License.
