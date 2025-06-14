@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # This is a Shell script for Manager
-# LAMP (Linux + Apache + MariaDB + PHP) environment
+# LNMP (Linux + Nginx + MariaDB + PHP) environment
 #
 # Supported OS:
 # Debian 11
@@ -11,6 +11,7 @@
 # Ubuntu 24.04
 #
 # Copyright (C) 2013 - 2025 Teddysun <i@teddysun.com>
+# Copyright (C) 2025 a950216t <admin@999199.xyz>
 #
 trap _exit INT QUIT TERM
 
@@ -134,7 +135,7 @@ vhost() {
             del_vhost
             ;;
         *)
-            _error "Usage: lamp vhost [add|list|del]"
+            _error "Usage: lnmp vhost [add|list|del]"
             ;;
     esac
 }
@@ -155,16 +156,16 @@ database() {
             edit_database
             ;;
         *)
-            _error "Usage: lamp db [add|list|del|edit]"
+            _error "Usage: lnmp db [add|list|del|edit]"
             ;;
     esac
 }
 
 add_vhost() {
     while true; do
-        read -r -p "[$(date)] Please input a domain (Example: www.lamp.sh): " domain
+        read -r -p "[$(date)] Please input a domain (Example: lnmp.999199.xyz): " domain
         if [ -n "${domain}" ] && [[ "${domain}" = "${domain%[[:space:]]*}" ]]; then
-            if [ -f "/etc/apache2/sites-enabled/${domain}.conf" ]; then
+            if [ -f "/etc/nginx/vhost/${domain}.conf" ]; then
                 _error "Domain name ${domain} is exist, please check it and try again."
             else
                 _info "Domain name: $(_green "${domain}")"
@@ -210,25 +211,26 @@ add_vhost() {
     _info "Domain Name: $(_green "${domain}")"
     _info "Virtual Host directory: $(_green "${vhostdir}")"
     _info "Virtual Host log directory: $(_green "/data/wwwlog/${domain}")"
-    _info "Virtual Host config file: $(_green "/etc/apache2/sites-enabled/${domain}.conf")"
+    _info "Virtual Host config file: $(_green "/etc/nginx/vhost/${domain}.conf")"
+    [ "${rewrite_flag}" == 'y' -a "${rewrite}" != 'magento2' -a "${rewrite}" != 'pathinfo' ] && _info "Rewrite rule: $(_green "/etc/nginx/rewrite/${rewrite}.conf")"
     list_vhost
     if [ "${create_database}" == "y" ] || [ "${create_database}" == "Y" ]; then
         _info "Database username: ${database_name}"
         _info "Database userpassword: ${mysql_password}"
         _info "Database name: ${database_name}"
     fi
-    _info "Reloading the Apache config file..."
-    _error_detect "systemctl restart apache2"
+    _info "Reloading the Nginx config file..."
+    _error_detect "systemctl restart nginx"
     read -r -p "[$(date)] Do you want to add a SSL certificate? [y/n]: " create_ssl
     if [ "${create_ssl}" = "y" ] || [ "${create_ssl}" = "Y" ]; then
         add_ssl_memu
         add_ssl_cert
-        _info "Reloading the Apache config file..."
-        if /usr/sbin/apachectl -t >/dev/null 2>&1; then
-            _error_detect "systemctl restart apache2"
+        _info "Reloading the Nginx config file..."
+        if /usr/sbin/nginx -t >/dev/null 2>&1; then
+            _error_detect "systemctl restart nginx"
             _info "Reload success"
         else
-            _error "Error: Reload failed. Apache config file had an error, please fixed it and try again"
+            _error "Error: Reload failed. Nginx config file had an error, please fixed it and try again"
         fi
     else
         _info "You chosen do not add a SSL certificate"
@@ -286,77 +288,146 @@ add_ssl_memu() {
 }
 
 add_vhost_config() {
-    cat >"/etc/apache2/sites-enabled/${domain}.conf" <<EOF
-<VirtualHost *:80>
-    ServerAdmin ${email}
-    ServerName ${domain}
-    DocumentRoot ${vhostdir}
-    <Directory ${vhostdir}>
-        SetOutputFilter DEFLATE
-        Options FollowSymLinks
-        AllowOverride All
-        Order Deny,Allow
-        Require all granted
-        DirectoryIndex index.html index.htm index.php
-    </Directory>
-    ErrorLog /data/wwwlog/${domain}/error.log
-    CustomLog /data/wwwlog/${domain}/access.log combined
-</VirtualHost>
+
+  NGX_CONF=$(echo -e "location ~ [^/]\.php(/|$) {\n    #fastcgi_pass remote_php_ip:9000;\n    fastcgi_pass unix:/run/php/php-fpm.sock;\n    fastcgi_index index.php;\n    include fastcgi.conf;\n  }")
+
+  while :; do echo
+    read -e -p "Do you want to add more domain name? [y/n]: " moredomainame_flag
+    if [[ ! ${moredomainame_flag} =~ ^[y,n]$ ]]; then
+      _yellow "input error! Please only input 'y' or 'n'"
+    else
+      break
+    fi
+  done
+
+  if [ "${moredomainame_flag}" == 'y' ]; then
+    while :; do echo
+      read -e -p "Type domainname or IP(example: example.com other.example.com): " moredomain
+      if [ -z "$(echo ${moredomain} | grep '.*\..*')" ]; then
+        _yellow "Your ${domain} is invalid!"
+      else
+        [ "${moredomain}" == "${domain}" ] && _yellow "Domain name already exists!" && continue
+        echo domain list="$moredomain"
+        moredomainame=" $moredomain"
+        break
+      fi
+    done
+
+    while :; do echo
+      read -e -p "Do you want to redirect from ${moredomain} to ${domain}? [y/n]: " redirect_flag
+      if [[ ! ${redirect_flag} =~ ^[y,n]$ ]]; then
+        _yellow "input error! Please only input 'y' or 'n'"
+      else
+        break
+      fi
+    done
+    [ "${redirect_flag}" == 'y' ] && Nginx_redirect="if (\$host != ${domain}) {  return 301 \$scheme://${domain}\$request_uri;  }"
+  fi
+
+  if [ -n "`ifconfig | grep inet6`" ]; then
+    Nginx_conf=$(echo -e "listen 80;\n  listen [::]:80;")
+  else
+    Nginx_conf=$(echo -e "listen 80;")
+  fi
+
+Nginx_anti_hotlinking
+Nginx_rewrite
+Nginx_log
+
+  cat > /etc/nginx/vhost/${domain}.conf << EOF
+server {
+  ${Nginx_conf}
+  server_name ${domain}${moredomainame};
+  ${Nginx_log}
+  index index.html index.htm index.php;
+  root ${vhostdir};
+  ${Nginx_redirect}
+  include /etc/nginx/rewrite/${rewrite}.conf;
+  #error_page 404 /404.html;
+  #error_page 502 /502.html;
+  ${anti_hotlinking}
+  ${NGX_CONF}
+
+  location ~ .*\.(gif|jpg|jpeg|png|bmp|swf|flv|mp4|ico)$ {
+    expires 30d;
+    access_log off;
+  }
+  location ~ .*\.(js|css)?$ {
+    expires 7d;
+    access_log off;
+  }
+  location ~ /(\.user\.ini|\.ht|\.git|\.svn|\.project|LICENSE|README\.md) {
+    deny all;
+  }
+  location /.well-known {
+    allow all;
+  }
+}
 EOF
 }
 
 create_ssl_config() {
-    cat >>"/etc/apache2/sites-enabled/${domain}.conf" <<EOF
-<VirtualHost *:443>
-    ServerAdmin ${email}
-    DocumentRoot ${vhostdir}
-    ServerName ${domain}
-    SSLEngine on
-    SSLCertificateFile ${ssl_certificate}
-    SSLCertificateKeyFile ${ssl_certificate_key}
-    <Directory ${vhostdir}>
-        SetOutputFilter DEFLATE
-        Options FollowSymLinks
-        AllowOverride All
-        Order Deny,Allow
-        Require all granted
-        DirectoryIndex index.html index.htm index.php
-    </Directory>
-    Header always set Strict-Transport-Security "max-age=31536000; preload"
-    Header always set X-Content-Type-Options nosniff
-    Header always set X-Frame-Options SAMEORIGIN
-    ErrorLog  /data/wwwlog/${domain}/ssl_error.log
-    CustomLog  /data/wwwlog/${domain}/ssl_access.log combined
-</VirtualHost>
-EOF
-}
 
-create_ssl_htaccess() {
-    cat >${vhostdir}/.htaccess <<EOF
-<IfModule mod_rewrite.c>
-RewriteEngine On
-RewriteCond %{HTTPS} off
-RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [R,L]
-</IfModule>
+LISTENOPT="443 ssl"
+HTTP2OPT="http2 on"
+
+if [ -n "`ifconfig | grep inet6`" ]; then
+  Nginx_conf=$(echo -e "listen 80;\n  listen [::]:80;\n  listen ${LISTENOPT};\n  listen [::]:${LISTENOPT};\n  ${HTTP2OPT};\n  ssl_certificate ${ssl_certificate};\n  ssl_certificate_key ${ssl_certificate_key};\n  ssl_protocols TLSv1.2 TLSv1.3;\n  ssl_ecdh_curve X25519:prime256v1:secp384r1:secp521r1;\n  ssl_ciphers ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256;\n  ssl_conf_command Ciphersuites TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256:TLS_AES_128_GCM_SHA256;\n  ssl_conf_command Options PrioritizeChaCha;\n  ssl_prefer_server_ciphers on;\n  ssl_session_timeout 10m;\n  ssl_session_cache shared:SSL:10m;\n  ssl_buffer_size 2k;\n  add_header Strict-Transport-Security max-age=15768000;\n  ssl_stapling on;\n  ssl_stapling_verify on;\n")
+else
+  Nginx_conf=$(echo -e "listen 80;\n  listen ${LISTENOPT};\n  ${HTTP2OPT};\n  ssl_certificate ${ssl_certificate};\n  ssl_certificate_key ${ssl_certificate_key};\n  ssl_protocols TLSv1.2 TLSv1.3;\n  ssl_ecdh_curve X25519:prime256v1:secp384r1:secp521r1;\n  ssl_ciphers ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256;\n  ssl_conf_command Ciphersuites TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256:TLS_AES_128_GCM_SHA256;\n  ssl_conf_command Options PrioritizeChaCha;\n  ssl_prefer_server_ciphers on;\n  ssl_session_timeout 10m;\n  ssl_session_cache shared:SSL:10m;\n  ssl_buffer_size 2k;\n  add_header Strict-Transport-Security max-age=15768000;\n  ssl_stapling on;\n  ssl_stapling_verify on;\n")
+fi
+
+  cat > /etc/nginx/vhost/${domain}.conf << EOF
+server {
+  ${Nginx_conf}
+  server_name ${domain}${moredomainame};
+  ${Nginx_log}
+  index index.html index.htm index.php;
+  root ${vhostdir};
+  ${Nginx_redirect}
+  include /etc/nginx/rewrite/${rewrite}.conf;
+  #error_page 404 /404.html;
+  #error_page 502 /502.html;
+  ${anti_hotlinking}
+  ${NGX_CONF}
+
+  location ~ .*\.(gif|jpg|jpeg|png|bmp|swf|flv|mp4|ico)$ {
+    expires 30d;
+    access_log off;
+  }
+  location ~ .*\.(js|css)?$ {
+    expires 7d;
+    access_log off;
+  }
+  location ~ /(\.user\.ini|\.ht|\.git|\.svn|\.project|LICENSE|README\.md) {
+    deny all;
+  }
+  location /.well-known {
+    allow all;
+  }
+}
 EOF
+
+[ "${force_ssl}" == 'y' ] && sed -i "s@^  root.*;@&\n  if (\$ssl_protocol = \"\") { return 301 https://\$host\$request_uri; }@" /etc/nginx/vhost/${domain}.conf
+
 }
 
 add_letsencrypt() {
-    if [ -d "/etc/apache2/ssl/${domain}" ]; then
+    if [ -d "/etc/nginx/ssl/${domain}" ]; then
         _info "Removing exist domain certificate..."
-        rm -rf /etc/apache2/ssl/${domain}
+        rm -rf /etc/nginx/ssl/${domain}
     fi
     _info "Starting create Let's Encrypt SSL Certificate..."
     . /usr/local/acme.sh/acme.sh.env
     /usr/local/acme.sh/acme.sh --issue --server letsencrypt ${letsdomain} -w ${vhostdir}
     if [ $? -eq 0 ]; then
-        if [ -s "/etc/apache2/ssl/${domain}/fullchain.cer" ]; then
-            ssl_certificate="/etc/apache2/ssl/${domain}/fullchain.cer"
-            ssl_certificate_key="/etc/apache2/ssl/${domain}/${domain}.key"
+        if [ -s "/etc/nginx/ssl/${domain}/fullchain.cer" ]; then
+            ssl_certificate="/etc/nginx/ssl/${domain}/fullchain.cer"
+            ssl_certificate_key="/etc/nginx/ssl/${domain}/${domain}.key"
         fi
-        if [ -s "/etc/apache2/ssl/${domain}_ecc/fullchain.cer" ]; then
-            ssl_certificate="/etc/apache2/ssl/${domain}_ecc/fullchain.cer"
-            ssl_certificate_key="/etc/apache2/ssl/${domain}_ecc/${domain}.key"
+        if [ -s "/etc/nginx/ssl/${domain}_ecc/fullchain.cer" ]; then
+            ssl_certificate="/etc/nginx/ssl/${domain}_ecc/fullchain.cer"
+            ssl_certificate_key="/etc/nginx/ssl/${domain}_ecc/${domain}.key"
         fi
         _info "Created Let's Encrypt SSL Certificate success"
     else
@@ -365,21 +436,21 @@ add_letsencrypt() {
 }
 
 add_buypass() {
-    if [ -d "/etc/apache2/ssl/${domain}" ]; then
+    if [ -d "/etc/nginx/ssl/${domain}" ]; then
         _info "Removing exist domain certificate..."
-        rm -rf /etc/apache2/ssl/${domain}
+        rm -rf /etc/nginx/ssl/${domain}
     fi
     _info "Starting create Buypass.com SSL Certificate..."
     . /usr/local/acme.sh/acme.sh.env
     /usr/local/acme.sh/acme.sh -m ${email} --issue --server buypass ${letsdomain} -w ${vhostdir} --days 170
     if [ $? -eq 0 ]; then
-        if [ -s "/etc/apache2/ssl/${domain}/fullchain.cer" ]; then
-            ssl_certificate="/etc/apache2/ssl/${domain}/fullchain.cer"
-            ssl_certificate_key="/etc/apache2/ssl/${domain}/${domain}.key"
+        if [ -s "/etc/nginx/ssl/${domain}/fullchain.cer" ]; then
+            ssl_certificate="/etc/nginx/ssl/${domain}/fullchain.cer"
+            ssl_certificate_key="/etc/nginx/ssl/${domain}/${domain}.key"
         fi
-        if [ -s "/etc/apache2/ssl/${domain}_ecc/fullchain.cer" ]; then
-            ssl_certificate="/etc/apache2/ssl/${domain}_ecc/fullchain.cer"
-            ssl_certificate_key="/etc/apache2/ssl/${domain}_ecc/${domain}.key"
+        if [ -s "/etc/nginx/ssl/${domain}_ecc/fullchain.cer" ]; then
+            ssl_certificate="/etc/nginx/ssl/${domain}_ecc/fullchain.cer"
+            ssl_certificate_key="/etc/nginx/ssl/${domain}_ecc/${domain}.key"
         fi
         _info "Created Buypass.com SSL Certificate success"
     else
@@ -393,7 +464,7 @@ install_check_acme() {
     else
         wget --no-check-certificate -qO- https://github.com/acmesh-official/acme.sh/tarball/master | tar xz
         cd acmesh-* || _error "Error: Download acme.sh failed, Please check it and try again"
-        ./acme.sh --install --log --home /usr/local/acme.sh --certhome /etc/apache2/ssl
+        ./acme.sh --install --log --home /usr/local/acme.sh --certhome /etc/nginx/ssl
         cd .. && rm -rf acmesh-*
         sed -i 's/cat "\$CERT_PATH"$/#cat "\$CERT_PATH"/g' /usr/local/acme.sh/acme.sh
         cat >/usr/local/acme.sh/upgrade.sh <<EOF
@@ -428,20 +499,19 @@ add_ssl_cert() {
         add_buypass
     fi
     create_ssl_config
-    [ "${force_ssl}" = "y" -o "${force_ssl}" = "Y" ] && create_ssl_htaccess
     _info "Added SSL certificate for virtual host [$(_green ${domain})] success"
 }
 
 list_vhost() {
-    _info "Apache virtual host list:"
+    _info "Nginx virtual host list:"
     local vhosts=()
-    while IFS=' ' read -r line; do vhosts+=("${line}"); done < <(find /etc/apache2/sites-enabled/ -name "*.conf" -type f -printf "%f\n" | sed 's/.conf//g' | grep -v "default")
+    while IFS=' ' read -r line; do vhosts+=("${line}"); done < <(find /etc/nginx/vhost/ -name "*.conf" -type f -printf "%f\n" | sed 's/.conf//g')
     if [ "${#vhosts[@]}" -gt 0 ]; then
         for i in "${vhosts[@]}"; do
             _info "  $(_green "${i}")"
         done
     else
-        _info "Apache virtual host not found. You can create a new Apache virtual host with command: $(_green "lamp vhost add")"
+        _info "Nginx virtual host not found. You can create a new Nginx virtual host with command: $(_green "lnmp vhost add")"
     fi
 }
 
@@ -455,12 +525,12 @@ del_vhost() {
             break
         fi
     done
-    if [ -f "/etc/apache2/sites-enabled/${domain}.conf" ]; then
-        rm -f "/etc/apache2/sites-enabled/${domain}.conf"
+    if [ -f "/etc/nginx/vhost/${domain}.conf" ]; then
+        rm -f "/etc/nginx/vhost/${domain}.conf"
         _info "Domain $(_red "${domain}") has been deleted."
         _info "Website files will not be delete for security reasons."
         _info "You need to manually delete the website files."
-        systemctl restart apache2 >/dev/null 2>&1
+        systemctl restart nginx >/dev/null 2>&1
     else
         _error "Domain: ${domain} was not exist."
     fi
@@ -605,25 +675,25 @@ edit_database() {
     do_query "FLUSH PRIVILEGES;"
 }
 
-lamp_start() {
-    _info "Starting LAMP..."
-    _error_detect "systemctl start apache2"
+lnmp_start() {
+    _info "Starting LNMP..."
+    _error_detect "systemctl start nginx"
     _error_detect "systemctl start mariadb"
     _error_detect "systemctl start ${php_fpm}"
-    _info "Start LAMP completed"
+    _info "Start LNMP completed"
 }
 
-lamp_stop() {
-    _info "Stoping LAMP..."
-    _error_detect "systemctl stop apache2"
+lnmp_stop() {
+    _info "Stoping LNMP..."
+    _error_detect "systemctl stop nginx"
     _error_detect "systemctl stop mariadb"
     _error_detect "systemctl stop ${php_fpm}"
-    _info "Stop LAMP completed"
+    _info "Stop LNMP completed"
 }
 
-lamp_status() {
-    _info "systemctl status apache2"
-    systemctl --no-pager -l status apache2
+lnmp_status() {
+    _info "systemctl status nginx"
+    systemctl --no-pager -l status nginx
     echo
     _info "systemctl status mariadb"
     systemctl --no-pager -l status mariadb
@@ -632,9 +702,9 @@ lamp_status() {
     systemctl --no-pager -l status "${php_fpm}"
 }
 
-lamp_version() {
-    _info "Apache version:"
-    /usr/sbin/apache2 -V
+lnmp_version() {
+    _info "Nginx version:"
+    /usr/sbin/nginx -V
     echo
     _info "MariaDB version:"
     /usr/bin/mariadb --version
@@ -645,7 +715,6 @@ lamp_version() {
 
 check_env() {
     if check_sys debian || check_sys ubuntu; then
-        [ -f "/etc/apache2/envvars" ] && . /etc/apache2/envvars
         php_sock="unix//run/php/php-fpm.sock"
         php_ver="$(/usr/bin/php -v | head -n1 | awk '{print $2}' | cut -d. -f1-2)"
         php_fpm="php${php_ver}-fpm"
@@ -654,36 +723,110 @@ check_env() {
     fi
 }
 
+Nginx_anti_hotlinking() {
+  while :; do echo
+    read -e -p "Do you want to add hotlink protection? [y/n]: " anti_hotlinking_flag
+    if [[ ! ${anti_hotlinking_flag} =~ ^[y,n]$ ]]; then
+      _yellow "input error! Please only input 'y' or 'n'"
+    else
+      break
+    fi
+  done
+
+  if [ -n "$(echo ${domain} | grep '.*\..*\..*')" ]; then
+    domain_allow="*.${domain#*.} ${domain}"
+  else
+    domain_allow="*.${domain} ${domain}"
+  fi
+
+  if [ "${anti_hotlinking_flag}" == 'y' ]; then
+    if [ "${moredomainame_flag}" == 'y' -a "${moredomain}" != "*.${domain}" ]; then
+      domain_allow_all=${domain_allow}${moredomainame}
+    else
+      domain_allow_all=${domain_allow}
+    fi
+    domain_allow_all=`echo ${domain_allow_all} | tr ' ' '\n' | awk '!a[$1]++' | xargs`
+    anti_hotlinking=$(echo -e "location ~ .*\.(wma|wmv|asf|mp3|mmf|zip|rar|jpg|gif|png|swf|flv|mp4)$ {\n    valid_referers none blocked ${domain_allow_all};\n    if (\$invalid_referer) {\n        return 403;\n    }\n  }")
+  fi
+}
+
+Nginx_rewrite() {
+  [ ! -d "/etc/nginx/rewrite" ] && mkdir /etc/nginx/rewrite
+  while :; do echo
+    read -e -p "Allow Rewrite rule? [y/n]: " rewrite_flag
+    if [[ ! "${rewrite_flag}" =~ ^[y,n]$ ]]; then
+      _yellow "input error! Please only input 'y' or 'n'"
+    else
+      break
+    fi
+  done
+  if [ "${rewrite_flag}" == 'n' ]; then
+    rewrite="none"
+    touch "/etc/nginx/rewrite/${rewrite}.conf"
+  else
+    echo
+    _green "Please input the rewrite of programme:"
+    _green "wordpress, opencart, magento2, drupal, joomla, codeigniter, laravel"
+    _green "thinkphp, pathinfo, discuzx, typecho, ecshop, nextcloud, zblog, whmcs rewrite was exist."
+    read -e -p "(Default rewrite: other): " rewrite
+    if [ "${rewrite}" == "" ]; then
+      rewrite="other"
+    fi
+    _info "You choose rewrite=$rewrite"
+    [ "${rewrite}" == "joomla" ] && NGX_CONF=$(echo -e "location ~ \\.php\$ {\n    #fastcgi_pass remote_php_ip:9000;\n    fastcgi_pass unix:/run/php/php-fpm.sock;\n    fastcgi_index index.php;\n    include fastcgi.conf;\n  }")
+    [[ "${rewrite}" =~ ^codeigniter$|^thinkphp$|^pathinfo$ ]] && NGX_CONF=$(echo -e "location ~ [^/]\.php(/|\$) {\n    #fastcgi_pass remote_php_ip:9000;\n    fastcgi_pass unix:/run/php/php-fpm.sock;\n    fastcgi_index index.php;\n    include fastcgi.conf;\n    fastcgi_split_path_info ^(.+?\.php)(/.*)\$;\n    set \$path_info \$fastcgi_path_info;\n    fastcgi_param PATH_INFO \$path_info;\n    try_files \$fastcgi_script_name =404;    \n  }")
+    [ "${rewrite}" == "typecho" ] && NGX_CONF=$(echo -e "location ~ .*\.php(\/.*)*\$ {\n    #fastcgi_pass remote_php_ip:9000;\n    fastcgi_pass unix:/run/php/php-fpm.sock;\n    fastcgi_index index.php;\n    include fastcgi.conf;\n    set \$path_info \"\";\n    set \$real_script_name \$fastcgi_script_name;\n    if (\$fastcgi_script_name ~ \"^(.+?\.php)(/.+)\$\") {\n      set \$real_script_name \$1;\n      set \$path_info \$2;\n    }\n    fastcgi_param SCRIPT_FILENAME \$document_root\$real_script_name;\n    fastcgi_param SCRIPT_NAME \$real_script_name;\n    fastcgi_param PATH_INFO \$path_info;\n  }")
+  fi
+}
+
+Nginx_log() {
+  while :; do echo
+    read -e -p "Allow Nginx access_log? [y/n]: " access_flag
+    if [[ ! "${access_flag}" =~ ^[y,n]$ ]]; then
+      _yellow "input error! Please only input 'y' or 'n'"
+    else
+      break
+    fi
+  done
+  if [ "${access_flag}" == 'n' ]; then
+    Nginx_log="access_log off;"
+  else
+    Nginx_log="access_log /data/wwwlog/${domain}/access.log combined;"
+    _info "You access log file=/data/wwwlog/${domain}/access.log"
+  fi
+  Nginx_log+="\n  error_log /data/wwwlog/${domain}/error.log warn;"
+}
+
 # Check user
 [ ${EUID} -ne 0 ] && _red "This script must be run as root!\n" && exit 1
 
 arg1=$1
 arg2=$2
 
-_info "+-------------------------------------------+"
-_info "|    Manager for LAMP, Written by Teddysun  |"
-_info "+-------------------------------------------+"
-_info "|    $(_green "https://github.com/teddysun/lamp")       |"
-_info "+-------------------------------------------+"
+_info "+----------------------------------------------------+"
+_info "|    Manager for LNMP, Written by a950216t           |"
+_info "+----------------------------------------------------+"
+_info "|    $(_green "https://github.com/a950216t/lnmp")    |"
+_info "+----------------------------------------------------+"
 
 check_env
 case "${arg1}" in
     start)
-        lamp_start
+        lnmp_start
         ;;
     stop)
-        lamp_stop
+        lnmp_stop
         ;;
     restart)
-        lamp_stop
+        lnmp_stop
         sleep 1
-        lamp_start
+        lnmp_start
         ;;
     status)
-        lamp_status
+        lnmp_status
         ;;
     version)
-        lamp_version
+        lnmp_version
         ;;
     vhost)
         vhost "${arg2}"
@@ -695,17 +838,17 @@ case "${arg1}" in
         ;;
     *)
         _info "Usage:"
-        _info "  $(_green "lamp start")      Start all of LAMP services"
-        _info "  $(_green "lamp stop")       Stop all of LAMP services"
-        _info "  $(_green "lamp restart")    Restart all of LAMP services"
-        _info "  $(_green "lamp status")     Check all of LAMP services status"
-        _info "  $(_green "lamp version")    Print all of LAMP software version"
-        _info "  $(_green "lamp vhost add")  Create a new Apache virtual host"
-        _info "  $(_green "lamp vhost list") List all of Apache virtual hosts"
-        _info "  $(_green "lamp vhost del")  Delete a Apache virtual host"
-        _info "  $(_green "lamp db add")     Create a MariaDB database and a user with same name"
-        _info "  $(_green "lamp db list")    List all of MariaDB databases"
-        _info "  $(_green "lamp db del")     Delete a MariaDB database and a user with same name"
-        _info "  $(_green "lamp db edit")    Update a MariaDB database username's password"
+        _info "  $(_green "lnmp start")      Start all of LNMP services"
+        _info "  $(_green "lnmp stop")       Stop all of LNMP services"
+        _info "  $(_green "lnmp restart")    Restart all of LNMP services"
+        _info "  $(_green "lnmp status")     Check all of LNMP services status"
+        _info "  $(_green "lnmp version")    Print all of LNMP software version"
+        _info "  $(_green "lnmp vhost add")  Create a new Nginx virtual host"
+        _info "  $(_green "lnmp vhost list") List all of Nginx virtual hosts"
+        _info "  $(_green "lnmp vhost del")  Delete a Nginx virtual host"
+        _info "  $(_green "lnmp db add")     Create a MariaDB database and a user with same name"
+        _info "  $(_green "lnmp db list")    List all of MariaDB databases"
+        _info "  $(_green "lnmp db del")     Delete a MariaDB database and a user with same name"
+        _info "  $(_green "lnmp db edit")    Update a MariaDB database username's password"
         ;;
 esac
