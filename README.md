@@ -29,6 +29,7 @@ And all things will be done in a few minutes.
 
 - Debian 11
 - Debian 12
+- Debian 13
 - Ubuntu 20.04
 - Ubuntu 22.04
 - Ubuntu 24.04
@@ -44,8 +45,8 @@ And all things will be done in a few minutes.
 ## Supported Software
 
 - Nginx Latest Stable  ※ Nginx packages provided by [deb.sury.org](https://deb.sury.org/)
-- MariaDB 10.11, 11.4  ※ MariaDB packages provided by [MariaDB Repository](https://dlm.mariadb.com/browse/mariadb_server/)
-- PHP 7.4, 8.0, 8.1, 8.2, 8.3, 8.4  ※ PHP packages provided by [deb.sury.org](https://deb.sury.org/)
+- MariaDB 10.11, 11.4, 11.8  ※ MariaDB packages provided by [MariaDB Repository](https://dlm.mariadb.com/browse/mariadb_server/)
+- PHP 7.4, 8.0, 8.1, 8.2, 8.3, 8.4, 8.5  ※ PHP packages provided by [deb.sury.org](https://deb.sury.org/)
 
 ## Supported Architecture
 
@@ -67,8 +68,8 @@ chmod 755 *.sh
 ```bash
 apt-get install --only-upgrade -y nginx
 apt-get install --only-upgrade -y mariadb-*
-# for example: php_ver=[7.4|8.0|8.1|8.2|8.3|8.4]
-php_ver="8.2"
+# for example: php_ver=[7.4|8.0|8.1|8.2|8.3|8.4|8.5]
+php_ver="8.5"
 apt-get install --only-upgrade -y php${php_ver}-*
 ```
 
@@ -77,8 +78,8 @@ apt-get install --only-upgrade -y php${php_ver}-*
 ```bash
 apt-get remove -y nginx
 apt-get remove -y mariadb-*
-# for example: php_ver=[7.4|8.0|8.1|8.2|8.3|8.4]
-php_ver="8.2"
+# for example: php_ver=[7.4|8.0|8.1|8.2|8.3|8.4|8.5]
+php_ver="8.5"
 apt-get remove -y php${php_ver}-*
 ```
 
@@ -132,8 +133,8 @@ Please feel free to report any bugs or issues to us, email to: admin@999199.xyz 
 
 ## License
 
-Copyright (C) 2013 - 2025 [Teddysun](https://teddysun.com/)
+Copyright (C) 2013 - 2026 [Teddysun](https://teddysun.com/)
 
-Copyright (C) 2025 [a950216t](https://999199.xyz/)
+Copyright (C) 2026 [a950216t](https://blog.999199.xyz/)
 
 Licensed under the [GPLv3](LICENSE) License.
