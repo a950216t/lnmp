@@ -397,7 +397,7 @@ _error_detect "cp -f ${cur_dir}/conf/lnmp.png /data/www/default/"
 _info "Nginx configuration completed"
 
 _info "MariaDB installation start"
-_error_detect "wget -qO mariadb_repo_setup.sh https://dl.lamp.sh/files/mariadb_repo_setup.sh"
+_error_detect "wget -qO mariadb_repo_setup.sh https://r.mariadb.com/downloads/mariadb_repo_setup"
 _error_detect "chmod +x mariadb_repo_setup.sh"
 _info "./mariadb_repo_setup.sh --mariadb-server-version=mariadb-${mariadb_ver}"
 ./mariadb_repo_setup.sh --mariadb-server-version=mariadb-${mariadb_ver} >/dev/null 2>&1
@@ -450,8 +450,9 @@ EOF
 fi
 
 # Install phpMyAdmin
-_error_detect "wget -qO pma.tar.gz https://dl.lamp.sh/files/pma.tar.gz"
+_error_detect "wget -qO pma.tar.gz https://files.phpmyadmin.net/phpMyAdmin/5.2.3/phpMyAdmin-5.2.3-all-languages.tar.gz"
 _error_detect "tar zxf pma.tar.gz -C /data/www/default/"
+_error_detect "mv /data/www/default/phpMyAdmin-5.2.3-all-languages /data/www/default/pma"
 _error_detect "rm -f pma.tar.gz"
 _info "/usr/bin/mariadb -uroot -p 2>/dev/null < /data/www/default/pma/sql/create_tables.sql"
 /usr/bin/mariadb -uroot -p"${db_pass}" 2>/dev/null </data/www/default/pma/sql/create_tables.sql
