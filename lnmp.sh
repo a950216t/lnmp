@@ -86,7 +86,7 @@ check_sys() {
     local release=''
 
     if [ -f /etc/linuxmint/info ]; then
-        if grep -Eqi "debian" /etc/linuxmint/info; then
+        if grep -Eqi "LMDE|Debian" /etc/linuxmint/info; then
              release="debian"
         else
              release="ubuntu"
