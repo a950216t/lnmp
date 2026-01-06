@@ -91,7 +91,6 @@ check_sys() {
         else
              release="ubuntu"
         fi
-
     elif [ -f /etc/debian_version ]; then
         release="debian"
     elif grep -Eqi "debian" /etc/issue; then
