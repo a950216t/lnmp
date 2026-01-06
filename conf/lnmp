@@ -93,21 +93,26 @@ _sleep_sec() {
 check_sys() {
     local value="$1"
     local release=''
-    if [ -f /etc/redhat-release ]; then
-        release="rhel"
+
+    if [ -f /etc/linuxmint/info ]; then
+        if grep -Eqi "debian" /etc/linuxmint/info; then
+             release="debian"
+        else
+             release="ubuntu"
+        fi
+
+    if [ -f /etc/debian_version ]; then
+        release="debian"
     elif grep -Eqi "debian" /etc/issue; then
         release="debian"
     elif grep -Eqi "ubuntu" /etc/issue; then
         release="ubuntu"
-    elif grep -Eqi "centos|red hat|redhat" /etc/issue; then
-        release="rhel"
     elif grep -Eqi "debian" /proc/version; then
         release="debian"
     elif grep -Eqi "ubuntu" /proc/version; then
         release="ubuntu"
-    elif grep -Eqi "centos|red hat|redhat" /proc/version; then
-        release="rhel"
     fi
+
     if [ "${value}" == "${release}" ]; then
         return 0
     else

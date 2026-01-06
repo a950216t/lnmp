@@ -84,21 +84,26 @@ _error_detect() {
 check_sys() {
     local value="$1"
     local release=''
-    if [ -f /etc/redhat-release ]; then
-        release="rhel"
+
+    if [ -f /etc/linuxmint/info ]; then
+        if grep -Eqi "debian" /etc/linuxmint/info; then
+             release="debian"
+        else
+             release="ubuntu"
+        fi
+
+    elif [ -f /etc/debian_version ]; then
+        release="debian"
     elif grep -Eqi "debian" /etc/issue; then
         release="debian"
     elif grep -Eqi "ubuntu" /etc/issue; then
         release="ubuntu"
-    elif grep -Eqi "centos|red hat|redhat" /etc/issue; then
-        release="rhel"
     elif grep -Eqi "debian" /proc/version; then
         release="debian"
     elif grep -Eqi "ubuntu" /proc/version; then
         release="ubuntu"
-    elif grep -Eqi "centos|red hat|redhat" /proc/version; then
-        release="rhel"
     fi
+
     if [ "${value}" == "${release}" ]; then
         return 0
     else
@@ -117,26 +122,8 @@ get_char() {
 }
 
 get_opsy() {
-    [ -f /etc/redhat-release ] && awk '{print $0}' /etc/redhat-release && return
     [ -f /etc/os-release ] && awk -F'[= "]' '/PRETTY_NAME/{print $3,$4,$5}' /etc/os-release && return
     [ -f /etc/lsb-release ] && awk -F'[="]+' '/DESCRIPTION/{print $2}' /etc/lsb-release && return
-}
-
-get_rhelversion() {
-    if check_sys rhel; then
-        local version
-        local code=$1
-        local main_ver
-        version=$(get_opsy)
-        main_ver=$(echo "${version}" | grep -oE "[0-9.]+")
-        if [ "${main_ver%%.*}" == "${code}" ]; then
-            return 0
-        else
-            return 1
-        fi
-    else
-        return 1
-    fi
 }
 
 get_debianversion() {
@@ -144,8 +131,20 @@ get_debianversion() {
         local version
         local code=$1
         local main_ver
-        version=$(get_opsy)
-        main_ver=$(echo "${version}" | grep -oE "[0-9.]+")
+
+        if [ -f /etc/debian_version ]; then
+            version=$(cat /etc/debian_version)
+            main_ver=$(echo "${version}" | grep -oE "[0-9]+" | head -n1)
+
+            if [ -z "${main_ver}" ]; then
+                 version=$(get_opsy)
+                 main_ver=$(echo "${version}" | grep -oE "[0-9.]+")
+            fi
+        else
+            version=$(get_opsy)
+            main_ver=$(echo "${version}" | grep -oE "[0-9.]+")
+        fi
+
         if [ "${main_ver%%.*}" == "${code}" ]; then
             return 0
         else
@@ -160,7 +159,13 @@ get_ubuntuversion() {
     if check_sys ubuntu; then
         local version
         local code=$1
-        version=$(get_opsy)
+
+        if [ -f /etc/upstream-release/lsb-release ]; then
+            version=$(grep "DISTRIB_RELEASE" /etc/upstream-release/lsb-release | awk -F "=" '{print $2}')
+        else
+            version=$(get_opsy)
+        fi
+
         if echo "${version}" | grep -q "${code}"; then
             return 0
         else
